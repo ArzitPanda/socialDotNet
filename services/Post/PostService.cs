@@ -67,8 +67,32 @@ namespace sample_one.services.post
     }
 
     public async Task<List<Post>> GetAllPost(long id)
+    {    string cacheKey = $"post:id:{id}:pid:all";
+
+        var cachedData  = await  _cache.GetAsync(cacheKey);
+              List<Post> cachedPosts = null;
+
+               if (cachedData != null)
     {
+        cachedPosts = JsonSerializer.Deserialize<List<Post>>(cachedData);
+
+    }
+
+    if (cachedPosts != null)
+    {
+        Console.WriteLine("from cached data");
+        return cachedPosts;
+    }
+
+
         var posts = await _DbContext.Select<Post>().Where(p => p.UserId == id).ToListAsync();
+
+            var json = JsonSerializer.Serialize(posts);
+            var bytedata =  Encoding.UTF8.GetBytes(json);
+
+         await _cache.SetAsync(cacheKey, bytedata, new DistributedCacheEntryOptions()
+        .SetSlidingExpiration(TimeSpan.FromSeconds(5)));
+
         return posts;
     }
 
