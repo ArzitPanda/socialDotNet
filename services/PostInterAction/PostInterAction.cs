@@ -1,5 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using Microsoft.AspNetCore.SignalR;
+using sample_one.hubs;
 using sample_one.models;
 using sample_one.models.dto;
 
@@ -12,10 +14,12 @@ namespace sample_one.services.post
     {
         private readonly IFreeSql _connection;
         private readonly IMapper _mapper;
-        public PostInterAction(IFreeSql connection, IMapper mapper)
+        private readonly  IHubContext<NotificationHub> _hubContext;
+        public PostInterAction(IFreeSql connection, IMapper mapper,IHubContext<NotificationHub> hubContext)
         {
             _connection = connection;
             _mapper = mapper;
+            _hubContext=hubContext;
         }
 
 
@@ -23,6 +27,10 @@ namespace sample_one.services.post
         {
             long postPresent = await _connection.Select<Post>().Where(p => p.PostId == postId).CountAsync();
             long userPresent = await _connection.Select<User>().Where(u => u.Id == InteractorId).CountAsync();
+
+            
+
+
             if (postPresent == 0)
             {
 
@@ -34,13 +42,15 @@ namespace sample_one.services.post
                 throw new InvalidUserException();
 
             }
-
+        Post post  = await  _connection.Select<Post>().Where(p => p.PostId == postId).FirstAsync();  
+                  User user = await _connection.Select<User>().Where(u => u.Id == InteractorId).FirstAsync();   
 
             Comment c = _mapper.Map<Comment>(comment);
             c.PostId = postId;
             c.Uid = InteractorId;
 
             var data = await _connection.Insert<Comment>().AppendData(c).ExecuteIdentityAsync();
+            await _hubContext.Clients.Group(post.UserId.ToString()).SendAsync("receivedPostNotification",$"{post.PostId}-{user.UserName}");
             c.CommentId = data;
             return c;
 

@@ -9,7 +9,7 @@ public interface IPostService
     public Task<List<Post>> GetAllPost(long id);
     public Task<Post> GetPostById(long id,long pid);
 
-    public Task<Post> AddPost(PostRequestDto post);
+    public Task<Post> AddPost(PostRequestDto post,IFormFile file);
 
     public Task<Post> UpdatePost(long id,long pid,PostRequestDto updatedPost);
 

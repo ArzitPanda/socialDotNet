@@ -12,16 +12,17 @@ namespace sample_one.services.post
         private readonly IFreeSql _DbContext;
         private readonly IMapper _Mapper;
 
-        // private readonly IFileUploader _FileUploader;
-        public PostService(IFreeSql freeSql,IMapper impMapper)
+        private readonly IFileUploader _FileUploader;
+        public PostService(IFreeSql freeSql,IMapper impMapper,IFileUploader fileUploader)
         {
             _DbContext = freeSql;
             _Mapper = impMapper;
-            // _FileUploader= fileUploader;
+            _FileUploader= fileUploader;
 
         }
 
-        public async Task<Post> AddPost(PostRequestDto post)
+
+        public async Task<Post> AddPost(PostRequestDto post,IFormFile file)
         {
 
           var count =   await    _DbContext.Select<User>().Where(A=>A.Id ==post.UserId).CountAsync();
@@ -31,7 +32,8 @@ namespace sample_one.services.post
             }
 
 
-            //  string url = _FileUploader.UploadImage(file);
+             string url = await _FileUploader.UploadImage(file);
+             Console.WriteLine(url);
 
              Post p =    _Mapper.Map<Post>(post);
                 // p.Content = url;

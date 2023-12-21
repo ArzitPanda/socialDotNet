@@ -8,21 +8,13 @@ namespace sample_one.utility
 
     public class FileUploader : IFileUploader
     {   
-
-
-     
-        
-
-       
-
-
-        public  string UploadImage(IFormFile file)
+        public async  Task<string> UploadImage(IFormFile file)
         {
 
             // Account account = new Account("dotnet_sample", "566762456861656", "vYNXOkanqyBMFdbAKAjYpcSduzw");
-            Account account = new Account { Cloud="dotnet_sample",ApiSecret="vYNXOkanqyBMFdbAKAjYpcSduzw",ApiKey="566762456861656"};
+            Account account = new Account ("dotnet_sample","566762456861656","vYNXOkanqyBMFdbAKAjYpcSduzw");
               Cloudinary _cloudinary = new Cloudinary(account);
-
+            
 
             if (file == null || file.Length == 0)
         {
@@ -33,14 +25,14 @@ namespace sample_one.utility
         var uploadParams = new ImageUploadParams
         {
             File = new FileDescription(file.FileName, file.OpenReadStream()),
-            Transformation = new Transformation().Quality("auto:low").FetchFormat("auto")
+            // Transformation = new Transformation().Quality("auto:low").FetchFormat("auto")
         };
 
-        var uploadResult = _cloudinary.Upload(uploadParams);
-        Console.WriteLine("line no");
-
+        var uploadResult = await _cloudinary.UploadAsync(uploadParams) ?? throw new Exception("Cloudinary upload failed");
+            Console.WriteLine("line no");
+            Console.WriteLine(uploadResult);
         // Get the public URL of the uploaded image
-        var imageUrl = uploadResult.Url.ToString();
+        var imageUrl = uploadResult.CreatedAt.ToString();
         return imageUrl;
         }
     }

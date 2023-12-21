@@ -7,6 +7,7 @@ using sample_one.models;
 using sample_one.models.dto;
 using sample_one.services.Connection;
 using sample_one.services.post;
+using sample_one.utility;
 
 namespace sample_one.Controllers
 {
@@ -18,6 +19,8 @@ namespace sample_one.Controllers
         private readonly IPostService _service;
         private readonly IConnectionService _connectionService;
         private readonly IHubContext<NotificationHub> _SocketContext;
+
+        private readonly IFileUploader _fileUploader;
         public PostController(IPostService postService, IHubContext<NotificationHub> context,IConnectionService connectionService) 
         {
                 _service = postService;
@@ -28,7 +31,7 @@ namespace sample_one.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<Post>> AddPost(PostRequestDto post)
+        public async Task<ActionResult<Post>> AddPost(IFormFile _file, [FromQuery]PostRequestDto post)
         {
                 try
                 {
@@ -38,7 +41,7 @@ namespace sample_one.Controllers
                 {
                     return Unauthorized("invalid token");
                 }
-                 var data = await _service.AddPost(post);
+                 var data = await _service.AddPost(post,_file);
                  var followersList = await _connectionService.GetFollowers(post.UserId);
                     List<string> ids = new List<string>();
                         foreach (var item in followersList)
