@@ -10,6 +10,9 @@ public interface IBioService
     public Task<UserResponseDto> CreateBio(Bio bio);
 
 
+    public Task<Bio> UploadUserProfile(long uid,IFormFile userphoto); 
+
+
 
 
 }
