@@ -36,7 +36,7 @@ namespace sample_one.services.post
              Console.WriteLine(url);
 
              Post p =    _Mapper.Map<Post>(post);
-                // p.Content = url;
+                p.Content = url;
 
                 long pid = await  _DbContext.Insert<Post>().AppendData(p).ExecuteIdentityAsync();
                 p.PostId = pid;
