@@ -206,6 +206,22 @@ app.MapWhen((context) =>
 
 
         });
+app.MapWhen((context) =>
+        context.Request.Path.StartsWithSegments("/api/Bio"), secureApp =>
+        {
+            secureApp.UseMiddleware<JwtMiddleware>();
+            secureApp.UseEndpoints(endpoints =>
+ {
+     endpoints.MapControllerRoute(
+         name: "bio",
+         pattern: "api/{controller=Bio}/{action=Index}/{id?}",
+         defaults: new { controller = "Bio", action = "Index" }
+     );
+ });
+
+
+
+        });
 
 
 app.UseCors("CorsPolicy");

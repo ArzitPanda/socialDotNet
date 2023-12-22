@@ -30,7 +30,7 @@ namespace sample_one.utility
                     Transformation = new Transformation().Quality("auto:low").FetchFormat("auto")
                 };
 
-                uploadResult = _cloudinary.Upload(uploadParams);
+                uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
 
 

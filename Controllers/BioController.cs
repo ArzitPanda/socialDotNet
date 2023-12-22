@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using sample_one.models;
 using sample_one.models.dto;
@@ -8,6 +9,7 @@ namespace sample_one.Controllers
 
 [ApiController]
 [Route("/api/[Controller]")]
+[Authorize(Roles = "user")]
 public class BioController : ControllerBase
 {
     private readonly IBioService _service; 
@@ -26,6 +28,23 @@ public class BioController : ControllerBase
             var data = await _service.CreateBio(bio);
 
             return data;
+
+
+    }
+
+    [HttpPost("profilePic")]
+    public async Task<ActionResult<Bio>> UpdateProfilePhoto(IFormFile file)
+    {
+            long id = (long) HttpContext.Items["UserId"];
+                Console.WriteLine(id);
+
+            
+                Console.WriteLine("i am here");
+                Bio bio = await _service.UploadUserProfile(id, file);
+                return Ok(bio);
+            
+          
+
 
 
     }
