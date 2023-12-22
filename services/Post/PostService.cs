@@ -16,14 +16,14 @@ namespace sample_one.services.post
         private readonly IMapper _Mapper;
         private readonly IDistributedCache _cache;
 
-        // private readonly IFileUploader _FileUploader;
-        public PostService(IFreeSql freeSql,IMapper impMapper)
+        private readonly IFileUploader _FileUploader;
+        public PostService(IFreeSql freeSql,IMapper impMapper,)
         {
             _DbContext = freeSql;
             _cache = cache;
 
             _Mapper = impMapper;
-            // _FileUploader= fileUploader;
+            _FileUploader= fileUploader;
 
         }
 
