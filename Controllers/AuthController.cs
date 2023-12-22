@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using sample_one.models.dto;
 using sample_one.services.auth;
+using sample_one.utility;
 
 namespace sample_one.Controllers {
 
@@ -62,9 +63,28 @@ public class AuthController : ControllerBase
 
     }
 
+    [HttpPost("sendmail")]
+    public async Task<ActionResult> SendMail(string mail)
+    {
+    IEmailProvider emailProvider = new EmailProvider();
+    emailProvider.SendVerificationEmail(mail);
+    return Ok();
+
+
+    }
+
+
+
+
+
 
 
 }
+
+
+
+
+
 
 
 
