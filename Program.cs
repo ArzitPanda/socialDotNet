@@ -4,6 +4,7 @@ using AutoMapper;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using sample_one.hubs;
@@ -40,7 +41,10 @@ builder.Services.AddSwaggerGen(options =>
 
 });
 
+builder.Services.AddStackExchangeRedisCache((Options)=>{
 
+    Options.Configuration="redis-14281.c274.us-east-1-3.ec2.cloud.redislabs.com:14281,password=S4XYjWHtdlN2j55mddpr5WbTaQDo5Zaa";
+});
 
 
 // var configuration = new MapperConfiguration(cfg => 

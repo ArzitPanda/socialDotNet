@@ -1,4 +1,7 @@
+using System.Text;
+using System.Text.Json;
 using AutoMapper;
+using Microsoft.Extensions.Caching.Distributed;
 using sample_one.models;
 using sample_one.models.dto;
 using sample_one.utility;
@@ -11,13 +14,16 @@ namespace sample_one.services.post
     {
         private readonly IFreeSql _DbContext;
         private readonly IMapper _Mapper;
+        private readonly IDistributedCache _cache;
 
-        private readonly IFileUploader _FileUploader;
-        public PostService(IFreeSql freeSql,IMapper impMapper,IFileUploader fileUploader)
+        // private readonly IFileUploader _FileUploader;
+        public PostService(IFreeSql freeSql,IMapper impMapper)
         {
             _DbContext = freeSql;
+            _cache = cache;
+
             _Mapper = impMapper;
-            _FileUploader= fileUploader;
+            // _FileUploader= fileUploader;
 
         }
 
@@ -62,19 +68,66 @@ namespace sample_one.services.post
     }
 
     public async Task<List<Post>> GetAllPost(long id)
+    {    string cacheKey = $"post:id:{id}:pid:all";
+
+        var cachedData  = await  _cache.GetAsync(cacheKey);
+              List<Post> cachedPosts = null;
+
+               if (cachedData != null)
     {
+        cachedPosts = JsonSerializer.Deserialize<List<Post>>(cachedData);
+
+    }
+
+    if (cachedPosts != null)
+    {
+        Console.WriteLine("from cached data");
+        return cachedPosts;
+    }
+
+
         var posts = await _DbContext.Select<Post>().Where(p => p.UserId == id).ToListAsync();
+
+            var json = JsonSerializer.Serialize(posts);
+            var bytedata =  Encoding.UTF8.GetBytes(json);
+
+         await _cache.SetAsync(cacheKey, bytedata, new DistributedCacheEntryOptions()
+        .SetSlidingExpiration(TimeSpan.FromSeconds(5)));
+
         return posts;
     }
 
     public async Task<Post> GetPostById(long id, long pid)
     {
+         string cacheKey = $"post:id:{id}:pid:{pid}";
+ 
+
+        var cachedData  = await  _cache.GetAsync(cacheKey);
+              Post cachedPost = null;
+    if (cachedData != null)
+    {
+        cachedPost = JsonSerializer.Deserialize<Post>(cachedData);
+
+    }
+
+    if (cachedPost != null)
+    {
+        Console.WriteLine("from cached data");
+        return cachedPost;
+    }
+
+
         var post = await _DbContext.Select<Post>().Where(p => p.UserId == id && p.PostId == pid).FirstAsync();
         if (post == null)
         {
             throw new Exception("Post not found.");
         }
 
+            var json = JsonSerializer.Serialize(post);
+            var bytedata =  Encoding.UTF8.GetBytes(json);
+
+         await _cache.SetAsync(cacheKey, bytedata, new DistributedCacheEntryOptions()
+        .SetSlidingExpiration(TimeSpan.FromSeconds(5))); // Adjust expiration as needed
         return post;
     }
 
