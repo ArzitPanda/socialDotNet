@@ -17,7 +17,7 @@ namespace sample_one.services.post
         private readonly IDistributedCache _cache;
 
         private readonly IFileUploader _FileUploader;
-        public PostService(IFreeSql freeSql,IMapper impMapper,)
+        public PostService(IFreeSql freeSql,IMapper impMapper,IDistributedCache cache,IFileUploader fileUploader)
         {
             _DbContext = freeSql;
             _cache = cache;
